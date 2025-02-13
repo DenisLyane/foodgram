@@ -2,14 +2,12 @@ volumes:
   pg_data:
   static:
   media:
-
 services:
   db:
     image: postgres:13.10
     env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
-  
   backend:
     image: denisoid/foodgram_backend
     env_file: .env
@@ -18,14 +16,12 @@ services:
     volumes:
       - static:/backend_static
       - media:/app/media
-  
   frontend:
     image: denisoid/foodgram_frontend
     volumes:
       - static:/app/result_build/
     depends_on:
       - backend
-  
   gateway:
     image: denisoid/foodgram_gateway
     env_file: .env
