@@ -1,9 +1,10 @@
-from api.serializers import SubscribeSerializer
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
+from api.serializers import SubscribeSerializer
 from users.models import Subscription, User
 from users.paginators import CustomPagination
 from users.serializers import UserAvatarSerializer, UserSerializer
