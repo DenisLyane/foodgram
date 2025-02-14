@@ -1,8 +1,7 @@
 import re
 
-from rest_framework import serializers
-
 from api.fields import Base64ImageField
+from rest_framework import serializers
 from users.models import User
 
 
