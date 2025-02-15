@@ -13,6 +13,11 @@ DEBUG = os.getenv('DEBUG', False) == 'True'
 
 ALLOWED_HOSTS = os.getenv('HOSTS', 'localhost').split(',')
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://foodgrambyplahosha.ddns.net',
+    'https://www.foodgrambyplahosha.ddns.net',
+]
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
