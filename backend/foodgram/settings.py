@@ -13,6 +13,10 @@ DEBUG = os.getenv('DEBUG', False) == 'True'
 
 ALLOWED_HOSTS = os.getenv('HOSTS', 'localhost').split(',')
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://foodgramlyane.zapto.org',
+    'https://www.foodgramlyane.zapto.org',
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
