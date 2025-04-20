@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import FilterSet, filters
-
 from recipes.models import Ingredient, Recipe
 
 User = get_user_model()
@@ -31,7 +30,6 @@ class RecipeFilter(FilterSet):
             if value:
                 return queryset.filter(shopping_carts__user=user)
         return queryset
-
 
 
 class IngredientFilter(FilterSet):
