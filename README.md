@@ -1,7 +1,7 @@
 1. Проект Foodgram
-«Foodgram» — сайт на котором можно делиться своими рецептами, добавлять чужие рецепты в избранное и подписываться на других пользователей. Для Зарегистрированных пользователяей доступен сервис «Список покупок». Этот сервис автоматические подсчитывает необходимое количество ингридиентов для выбранных блюд, для удобства покупок в магазине.
+«Foodgram» — сайт "кулинарная книжкка". 
 
-2. Стек проекта (список технологий):
+2. Список технологий:
 Язык программирования: Python
 
 Фреймворк: Django
@@ -10,19 +10,11 @@
 
 API: Django Rest Framework
 
-Системы контроля версий: Git
-
-Инструменты разработки: VSCode
-
-Управление зависимостями: pip, requirements.txt
-
 Сервер: Nginx
 
 WSGI-сервер: Gunicorn
 
 Контейнеризация: Docker
-
-Аутентификационный бэкенд: Djoser
 
 3. Что нужно для запуска проекта:
 Клонировать репозиторий и перейти в него в командной строке
@@ -30,12 +22,14 @@ WSGI-сервер: Gunicorn
 Cоздать, активировать и обновить виртуальное окружение:
 для Windows
 
-python -m venv venv source venv/Scripts/activate
+python -m venv venv 
+source venv/Scripts/activate
 python -m pip install --upgrade pip
 
 Linux/macOS
 
-python3 -m venv venv source venv/bin/activate
+python3 -m venv venv 
+source venv/bin/activate
 python3 -m pip install --upgrade pip
 
 Установить зависимости из файла requirements.txt:
