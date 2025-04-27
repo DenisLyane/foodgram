@@ -1,12 +1,19 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from recipes.constants import (INGR_NAME_LENGTH, INGR_UNIT_LENGTH, MAX, MIN,
+                               RECIPE_NAME_LENGTH, TAG_LENGTH)
 from users.models import User
 
 
 class Tag(models.Model):
-    name = models.CharField('Название тега', max_length=32, unique=True)
+    name = models.CharField(
+        'Название тега',
+        max_length=TAG_LENGTH,
+        unique=True
+    )
     slug = models.SlugField(
-        'Уникальный слаг', max_length=32, unique=True)
+        'Уникальный слаг', max_length=TAG_LENGTH, unique=True)
 
     class Meta:
         verbose_name = 'Тег'
@@ -18,8 +25,14 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    name = models.CharField('Название ингридиента', max_length=128)
-    measurement_unit = models.CharField('Единица измерения', max_length=64)
+    name = models.CharField(
+        'Название ингридиента',
+        max_length=INGR_NAME_LENGTH
+    )
+    measurement_unit = models.CharField(
+        'Единица измерения',
+        max_length=INGR_UNIT_LENGTH
+    )
 
     class Meta:
         ordering = ('name',)
@@ -27,7 +40,7 @@ class Ingredient(models.Model):
         verbose_name_plural = 'Ингредиенты'
 
     def __str__(self):
-        return self.name
+        return f'{self.name}, {self.measurement_unit}.'
 
 
 class RecipeIngredient(models.Model):
@@ -45,11 +58,21 @@ class RecipeIngredient(models.Model):
         on_delete=models.CASCADE,
         related_name='recipe_ingredients',
     )
-    amount = models.IntegerField('Количество в рецепте',)
+    amount = models.PositiveSmallIntegerField(
+        'Количество в рецепте',
+        validators=[
+            MinValueValidator(MIN),
+            MaxValueValidator(MAX)
+        ]
+    )
 
     class Meta:
+        ordering = ('recipe', 'ingredient')
         verbose_name = 'Рецепт-ингредиент'
         verbose_name_plural = 'Рецепты-ингредиенты'
+
+    def __str__(self):
+        return f'{self.recipe} - {self.ingredient}'
 
 
 class RecipeTag(models.Model):
@@ -69,13 +92,18 @@ class RecipeTag(models.Model):
     )
 
     class Meta:
-
         verbose_name = 'Рецепт-тег'
         verbose_name_plural = 'Рецепты-теги'
 
+    def __str__(self):
+        return f'{self.recipe} - {self.tag}'
+
 
 class Recipe(models.Model):
-    name = models.CharField('Название', max_length=256)
+    name = models.CharField(
+        'Название',
+        max_length=RECIPE_NAME_LENGTH
+    )
     image = models.ImageField(
         'Изображениe',
         upload_to='recipes/images/',
@@ -101,7 +129,13 @@ class Recipe(models.Model):
         verbose_name='Список тэгов',
         related_name='recipes',
     )
-    cooking_time = models.IntegerField('Время приготовления',)
+    cooking_time = models.PositiveSmallIntegerField(
+        'Время приготовления',
+        validators=[
+            MinValueValidator(MIN),
+            MaxValueValidator(MAX)
+        ]
+    )
     short_link = models.URLField(
         max_length=6, unique=True, blank=True, null=True)
 
@@ -109,7 +143,6 @@ class Recipe(models.Model):
         ordering = ('-id',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
-        ordering = ('-id',)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -135,9 +168,12 @@ class Favourite(models.Model):
     )
 
     class Meta:
-
+        ordering = ('-id',)
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
+
+    def __str__(self):
+        return f'{self.user.username} добавил "{self.recipe.name}" в избранное'
 
 
 class ShoppingCart(models.Model):
@@ -153,5 +189,9 @@ class ShoppingCart(models.Model):
     )
 
     class Meta:
+        ordering = ('-id',)
         verbose_name = 'Корзина покупок'
         verbose_name_plural = 'Корзина покупок'
+
+    def __str__(self):
+        return f'{self.user.username} добавил "{self.recipe.name}" в корзину'
