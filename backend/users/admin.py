@@ -19,7 +19,7 @@ class UserAdmin(admin.ModelAdmin):
 
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ('user', 'subscribing')
-    empty_value_display = '---'
+    empty_value_display = '-отсутствует-'
 
 
 admin.site.register(User, UserAdmin)
