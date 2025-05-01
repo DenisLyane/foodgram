@@ -1,17 +1,8 @@
 from django.contrib import admin
+from django.core.exceptions import ValidationError
 
 from recipes.models import (Favourite, Ingredient, Recipe, RecipeIngredient,
                             RecipeTag, ShoppingCart, Tag)
-
-
-class TagInline(admin.TabularInline):
-    model = RecipeTag
-    extra = 1
-
-
-class IngredientInline(admin.TabularInline):
-    model = RecipeIngredient
-    extra = 1
 
 
 class RecipeAdmin(admin.ModelAdmin):
@@ -19,7 +10,6 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ('author__username', 'name',)
     list_filter = ('tags',)
     empty_value_display = '-отсутствует-'
-    inlines = [IngredientInline, TagInline]
 
     @admin.display(description='Ингредиенты')
     def get_ingredients(self, obj):
@@ -31,8 +21,11 @@ class RecipeAdmin(admin.ModelAdmin):
     def get_tags(self, obj):
         return ', '.join([tag.name for tag in obj.tags.all()])
 
-    def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
+    def save_model(self, request, obj, change):
+        if not obj.ingredients.exists():
+            raise ValidationError(
+                'Рецепт должен содержать хотя бы один ингредиент.')
+        super().save_model(request, obj, change)
 
 
 class FavouriteAdmin(admin.ModelAdmin):
@@ -72,9 +65,9 @@ class IngredientAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Recipe, RecipeAdmin)
-admin.site.register(Ingredient, IngredientAdmin)
-admin.site.register(Tag, TagAdmin)
-admin.site.register(RecipeIngredient, RecipeIngredientAdmin)
-admin.site.register(RecipeTag, RecipeTagAdmin)
 admin.site.register(Favourite, FavouriteAdmin)
+admin.site.register(RecipeTag, RecipeTagAdmin)
+admin.site.register(RecipeIngredient, RecipeIngredientAdmin)
 admin.site.register(ShoppingCart, ShoppingCartAdmin)
+admin.site.register(Tag, TagAdmin)
+admin.site.register(Ingredient, IngredientAdmin)
