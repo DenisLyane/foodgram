@@ -18,6 +18,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://www.foodgramdlyane.zapto.org/',
 ]
 
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
