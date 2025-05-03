@@ -5,11 +5,22 @@ from recipes.models import (Favourite, Ingredient, Recipe, RecipeIngredient,
                             RecipeTag, ShoppingCart, Tag)
 
 
+class IngredientInline(admin.TabularInline):
+    model = RecipeIngredient
+    extra = 1
+
+
+class TagInline(admin.TabularInline):
+    model = RecipeTag
+    extra = 1
+
+
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author', 'get_ingredients', 'get_tags')
     search_fields = ('author__username', 'name',)
     list_filter = ('tags',)
     empty_value_display = '-отсутствует-'
+    inlines = [IngredientInline, TagInline]
 
     @admin.display(description='Ингредиенты')
     def get_ingredients(self, obj):
@@ -21,11 +32,8 @@ class RecipeAdmin(admin.ModelAdmin):
     def get_tags(self, obj):
         return ', '.join([tag.name for tag in obj.tags.all()])
 
-    def save_model(self, request, obj, change):
-        if not obj.ingredients.exists():
-            raise ValidationError(
-                'Рецепт должен содержать хотя бы один ингредиент.')
-        super().save_model(request, obj, change)
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
 
 
 class FavouriteAdmin(admin.ModelAdmin):
