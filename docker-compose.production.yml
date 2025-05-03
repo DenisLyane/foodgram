@@ -14,16 +14,15 @@ services:
     depends_on:
       - db
     volumes:
-      - static:/static
-      - media:/media 
+      - static:/backend_static
+      - media:/app/media
   frontend:
     image: denisoid/foodgram_frontend
-    env_file: .env 
-    depends_on: 
-      - backend   
-    command: cp -r /app/build/. /static/ 
-    volumes: 
+    command: cp -r /app/build/. /static/
+    volumes:
       - static:/static
+    depends_on:
+      - backend
   gateway:
     image: denisoid/foodgram_gateway
     env_file: .env

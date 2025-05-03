@@ -9,27 +9,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.filters import IngredientFilter, RecipeFilter
-from api.pagination import CustomPagination
 from api.permissions import AuthorOrReadOnly
 from api.serializers import (FavouriteAndShoppingCrtSerializer,
                              FavouriteSerializer, IngredientSerializer,
                              RecipeReadSerializer, RecipeSerializer,
                              ShoppingCartSerializer, TagSerializer)
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
-
-
-class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Tag.objects.all()
-    serializer_class = TagSerializer
-    pagination_class = None
-
-
-class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Ingredient.objects.all()
-    serializer_class = IngredientSerializer
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = IngredientFilter
-    pagination_class = None
+from users.views import CustomPagination
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -140,7 +126,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response = HttpResponse(shopping_list_text, content_type='text/plain')
         response[
             'Content-Disposition'] = 'attachment; filename="shopping_cart.txt"'
+
         return response
+
+
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    pagination_class = None
+
+
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = IngredientFilter
+    pagination_class = None
 
 
 class RecipeRedirectView(APIView):

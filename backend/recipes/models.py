@@ -8,35 +8,24 @@ from users.models import User
 
 
 class Tag(models.Model):
-    name = models.CharField(
-        'Название тега',
-        max_length=TAG_LENGTH,
-        unique=True
-    )
+    name = models.CharField('Название', max_length=TAG_LENGTH, unique=True)
     slug = models.SlugField(
         'Уникальный слаг', max_length=TAG_LENGTH, unique=True)
 
     class Meta:
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
-        ordering = ('name',)
 
     def __str__(self):
         return self.name
 
 
 class Ingredient(models.Model):
-    name = models.CharField(
-        'Название ингридиента',
-        max_length=INGR_NAME_LENGTH
-    )
+    name = models.CharField('Название', max_length=INGR_NAME_LENGTH)
     measurement_unit = models.CharField(
-        'Единица измерения',
-        max_length=INGR_UNIT_LENGTH
-    )
+        'Единица измерения', max_length=INGR_UNIT_LENGTH)
 
     class Meta:
-        ordering = ('name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
         constraints = [
@@ -46,7 +35,7 @@ class Ingredient(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.name}, {self.measurement_unit}.'
+        return self.name
 
 
 class RecipeIngredient(models.Model):
@@ -73,12 +62,8 @@ class RecipeIngredient(models.Model):
     )
 
     class Meta:
-        ordering = ('recipe', 'ingredient')
         verbose_name = 'Рецепт-ингредиент'
         verbose_name_plural = 'Рецепты-ингредиенты'
-
-    def __str__(self):
-        return f'{self.recipe} - {self.ingredient}'
 
 
 class RecipeTag(models.Model):
@@ -98,6 +83,7 @@ class RecipeTag(models.Model):
     )
 
     class Meta:
+
         verbose_name = 'Рецепт-тег'
         verbose_name_plural = 'Рецепты-теги'
         constraints = [
@@ -105,22 +91,16 @@ class RecipeTag(models.Model):
                              name='unique_recipe_tag')
         ]
 
-    def __str__(self):
-        return f'{self.recipe} - {self.tag}'
-
 
 class Recipe(models.Model):
-    name = models.CharField(
-        'Название',
-        max_length=RECIPE_NAME_LENGTH
-    )
+    name = models.CharField('Название', max_length=RECIPE_NAME_LENGTH)
     image = models.ImageField(
         'Изображениe',
         upload_to='recipes/images/',
         null=True,
         default=None
     )
-    text = models.TextField('Описание рецепта')
+    text = models.TextField('Описание')
     author = models.ForeignKey(
         User, on_delete=models.CASCADE,
         verbose_name='Автор',
@@ -147,30 +127,24 @@ class Recipe(models.Model):
             MaxValueValidator(MAX)
         ]
     )
-    short_link = models.URLField(
-        max_length=6,
-        unique=True,
-        blank=True,
-        null=True
-    )
+    short_link = models.URLField(unique=True, blank=True, null=True)
     full_link = models.URLField(blank=True, null=True)
 
     class Meta:
-        ordering = ('-id',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+        ordering = ('-id',)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-
         if not self.short_link:
             self.short_link = (
-                f'https://foodgramdlyane.zapto.org/r/{self.pk}/'
+                f'https://foodgramlyane.zapto.org/r/{self.pk}/'
             )
             self.save(update_fields=['short_link'])
         if not self.full_link:
             self.full_link = (
-                f'https://foodgramdlyane.zapto.org/recipes/{self.pk}/'
+                f'https://foodgramlyane.zapto.org/recipes/{self.pk}/'
             )
             self.save(update_fields=['full_link'])
 
@@ -191,16 +165,13 @@ class Favourite(models.Model):
     )
 
     class Meta:
-        ordering = ('-id',)
+
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
         constraints = [
             UniqueConstraint(fields=['user', 'recipe'],
                              name='unique_fav_user_recipe')
         ]
-
-    def __str__(self):
-        return f'{self.user.username} добавил "{self.recipe.name}" в избранное'
 
 
 class ShoppingCart(models.Model):
@@ -216,13 +187,9 @@ class ShoppingCart(models.Model):
     )
 
     class Meta:
-        ordering = ('-id',)
         verbose_name = 'Корзина покупок'
         verbose_name_plural = 'Корзина покупок'
         constraints = [
             UniqueConstraint(fields=['user', 'recipe'],
                              name='unique_shop_user_recipe')
         ]
-
-    def __str__(self):
-        return f'{self.user.username} добавил "{self.recipe.name}" в корзину'

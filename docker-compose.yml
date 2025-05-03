@@ -8,30 +8,24 @@ services:
     env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
-  backend: 
-    build: ./backend/ 
-    env_file: .env 
-    depends_on: 
-      - db 
-    volumes: 
-      - static:/static 
-      - media:/media 
-  frontend: 
-    env_file: .env 
-    build: ./frontend/ 
-    depends_on: 
-      - backend 
-    command: cp -r /app/build/. /static/ 
-    volumes: 
+  backend:
+    image: denisoid/foodgram_backend
+    env_file: .env
+    depends_on:
+      - db
+    volumes:
+      - static:/backend_static
+      - media:/app/media
+  frontend:
+    image: denisoid/foodgram_frontend
+    command: cp -r /app/build/. /static/
+    volumes:
       - static:/static
-  gateway: 
-    build: ./nginx/ 
-    env_file: .env 
-    depends_on: 
-      - backend
-      - frontend    
-    ports: 
-      - 9000:80 
-    volumes: 
-      - static:/static 
-      - media:/media 
+  gateway:
+    image: denisoid/foodgram_gateway
+    env_file: .env
+    ports:
+      - 9000:80
+    volumes:
+      - static:/static
+      - media:/media
