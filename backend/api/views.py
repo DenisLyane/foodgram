@@ -32,114 +32,114 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = None
 
 
-class RecipeViewSet(viewsets.ModelViewSet): 
-    queryset = Recipe.objects.all() 
-    pagination_class = CustomPagination 
-    filter_backends = (DjangoFilterBackend,) 
-    filterset_class = RecipeFilter 
-    permission_classes = [AuthorOrReadOnly, IsAuthenticatedOrReadOnly] 
- 
-    def get_serializer_class(self): 
-        if self.action in ('list', 'retrieve'): 
-            return RecipeReadSerializer 
-        return RecipeSerializer 
- 
-    def perform_create(self, serializer): 
-        serializer.save(author=self.request.user) 
- 
-    def add_in_bd(self, model, user, pk): 
-        if model.objects.filter(user=user, recipe_id=pk).exists(): 
-            return Response( 
-                {'errors': 'Рецепт уже был добавлен.'}, 
-                status=status.HTTP_400_BAD_REQUEST 
-            ) 
-        recipe = get_object_or_404(Recipe, id=pk) 
-        model.objects.create(user=user, recipe=recipe) 
-        serializer = FavouriteAndShoppingCrtSerializer(recipe) 
-        return Response(serializer.data, status=status.HTTP_201_CREATED) 
- 
-    def delete_from_bd(self, model, user, pk): 
-        if not Recipe.objects.filter(id=pk).exists(): 
-            return Response( 
-                {'errors': 'Рецепт не существует.'}, 
-                status=status.HTTP_404_NOT_FOUND 
-            ) 
-        obj = model.objects.filter(user=user, recipe__id=pk) 
- 
-        if obj.exists(): 
-            obj.delete() 
-            return Response(status=status.HTTP_204_NO_CONTENT) 
-        return Response( 
-            {'errors': 'Рецепт уже был удален.'}, 
-            status=status.HTTP_400_BAD_REQUEST 
-        ) 
- 
-    @action( 
-        detail=True, methods=['post'], 
-        url_path='favorite', 
-        permission_classes=[permissions.IsAuthenticated] 
-    ) 
-    def favorite_post(self, request, pk): 
- 
-        return self.add_in_bd(Favourite, request.user, pk) 
- 
-    @favorite_post.mapping.delete 
-    def favorite_delete(self, request, pk): 
- 
-        return self.delete_from_bd(Favourite, request.user, pk) 
- 
-    @action( 
-        detail=True, methods=['post'], 
-        url_path='shopping_cart', 
-        permission_classes=[permissions.IsAuthenticated] 
-    ) 
-    def shopping_cart_post(self, request, pk): 
- 
-        return self.add_in_bd(ShoppingCart, request.user, pk) 
- 
-    @shopping_cart_post.mapping.delete 
-    def shopping_cart_delete(self, request, pk): 
-        return self.delete_from_bd(ShoppingCart, request.user, pk) 
- 
-    @action(detail=True, methods=['get'], url_path='get-link') 
-    def get_link(self, *args, **kwargs): 
-        recipe = self.get_object() 
-        short_link = recipe.short_link 
-        return Response({'short-link': short_link}, status=status.HTTP_200_OK) 
- 
-    @action( 
-        detail=False, methods=['get'], 
-        url_path='download_shopping_cart', 
-        permission_classes=[permissions.IsAuthenticated] 
-    ) 
-    def download_shopping_cart(self, request): 
-        ingredients = ( 
-            RecipeIngredient.objects 
-            .filter(recipe__shopping_carts__user=request.user) 
-            .values('ingredient__name', 'ingredient__measurement_unit') 
-            .annotate(total_amount=Sum('amount')) 
-            .order_by('ingredient__name') 
-        ) 
- 
-        if not ingredients.exists(): 
-            return Response( 
-                {'errors': 'Корзина пуста.'}, 
-                status=status.HTTP_400_BAD_REQUEST 
-            ) 
- 
-        shopping_list_text = 'Список покупок:\n\n' 
-        for item in ingredients: 
-            shopping_list_text += ( 
-                f'{item["ingredient__name"]}, ' 
-                f'({item["ingredient__measurement_unit"]}) — ' 
-                f'{item["total_amount"]}\n' 
-            ) 
- 
-        response = HttpResponse(shopping_list_text, content_type='text/plain') 
-        response[ 
-            'Content-Disposition'] = 'attachment; filename="shopping_cart.txt"' 
- 
-        return response 
+class RecipeViewSet(viewsets.ModelViewSet):
+    queryset = Recipe.objects.all()
+    pagination_class = CustomPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
+    permission_classes = [AuthorOrReadOnly, IsAuthenticatedOrReadOnly]
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return RecipeReadSerializer
+        return RecipeSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def add_in_bd(self, model, user, pk):
+        if model.objects.filter(user=user, recipe_id=pk).exists():
+            return Response(
+                {'errors': 'Рецепт уже был добавлен.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        recipe = get_object_or_404(Recipe, id=pk)
+        model.objects.create(user=user, recipe=recipe)
+        serializer = FavouriteAndShoppingCrtSerializer(recipe)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete_from_bd(self, model, user, pk):
+        if not Recipe.objects.filter(id=pk).exists():
+            return Response(
+                {'errors': 'Рецепт не существует.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        obj = model.objects.filter(user=user, recipe__id=pk)
+
+        if obj.exists():
+            obj.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {'errors': 'Рецепт уже был удален.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    @action(
+        detail=True, methods=['post'],
+        url_path='favorite',
+        permission_classes=[permissions.IsAuthenticated]
+    )
+    def favorite_post(self, request, pk):
+
+        return self.add_in_bd(Favourite, request.user, pk)
+
+    @favorite_post.mapping.delete
+    def favorite_delete(self, request, pk):
+
+        return self.delete_from_bd(Favourite, request.user, pk)
+
+    @action(
+        detail=True, methods=['post'],
+        url_path='shopping_cart',
+        permission_classes=[permissions.IsAuthenticated]
+    )
+    def shopping_cart_post(self, request, pk):
+
+        return self.add_in_bd(ShoppingCart, request.user, pk)
+
+    @shopping_cart_post.mapping.delete
+    def shopping_cart_delete(self, request, pk):
+        return self.delete_from_bd(ShoppingCart, request.user, pk)
+
+    @action(detail=True, methods=['get'], url_path='get-link')
+    def get_link(self, *args, **kwargs):
+        recipe = self.get_object()
+        short_link = recipe.short_link
+        return Response({'short-link': short_link}, status=status.HTTP_200_OK)
+
+    @action(
+        detail=False, methods=['get'],
+        url_path='download_shopping_cart',
+        permission_classes=[permissions.IsAuthenticated]
+    )
+    def download_shopping_cart(self, request):
+        ingredients = (
+            RecipeIngredient.objects
+            .filter(recipe__shopping_carts__user=request.user)
+            .values('ingredient__name', 'ingredient__measurement_unit')
+            .annotate(total_amount=Sum('amount'))
+            .order_by('ingredient__name')
+        )
+
+        if not ingredients.exists():
+            return Response(
+                {'errors': 'Корзина пуста.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        shopping_list_text = 'Список покупок:\n\n'
+        for item in ingredients:
+            shopping_list_text += (
+                f'{item["ingredient__name"]}, '
+                f'({item["ingredient__measurement_unit"]}) — '
+                f'{item["total_amount"]}\n'
+            )
+
+        response = HttpResponse(shopping_list_text, content_type='text/plain')
+        response[
+            'Content-Disposition'] = 'attachment; filename="shopping_cart.txt"'
+
+        return response
 
 
 class RecipeRedirectView(APIView):
