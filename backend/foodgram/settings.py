@@ -18,6 +18,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://www.foodgramdlyane.zapto.org/',
 ]
 
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -104,8 +105,8 @@ USE_L10N = True
 
 USE_TZ = True
 
-STATIC_URL = "/django_static/"
-STATIC_ROOT = "/app/static/"
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'collected_static'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
