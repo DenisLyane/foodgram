@@ -36,7 +36,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeIngredient
-        fields = ['id', 'amount']
+        fields = ('id', 'amount')
 
 
 class FavouriteAndShoppingCrtSerializer(serializers.ModelSerializer):
@@ -88,8 +88,26 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         return False
 
 
+class CreateIngredientInRecipeSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all(),
+        source='ingredient',
+        error_messages={
+            'does_not_exist': 'Ингредиент не существует.'
+        }
+    )
+
+    class Meta:
+
+        model = RecipeIngredient
+        fields = (
+            'id',
+            'amount',
+        )
+
+
 class RecipeSerializer(serializers.ModelSerializer):
-    ingredients = RecipeIngredientSerializer(
+    ingredients = CreateIngredientInRecipeSerializer(
         many=True, source='recipe_ingredients', required=True)
     tags = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Tag.objects.all(), required=True)
