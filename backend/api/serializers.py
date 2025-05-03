@@ -53,7 +53,11 @@ class FavouriteAndShoppingCrtSerializer(serializers.ModelSerializer):
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
-    ingredients = serializers.SerializerMethodField()
+    ingredients = RecipeIngredientSerializer(
+        source='recipe_ingredients',
+        many=True,
+        read_only=True,
+    )
     tags = TagSerializer(many=True, read_only=True)
     author = UserSerializer(required=False)
     is_in_shopping_cart = serializers.SerializerMethodField()
@@ -61,11 +65,11 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = [
+        fields = (
             'id', 'name', 'image', 'text', 'author',
             'ingredients', 'tags', 'cooking_time',
             'is_in_shopping_cart', 'is_favorited'
-        ]
+        )
 
     def get_user(self):
         request = self.context.get('request')
@@ -95,10 +99,10 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = [
+        fields = (
             'id', 'name', 'image', 'text', 'author',
             'ingredients', 'tags', 'cooking_time',
-        ]
+        )
 
     @staticmethod
     def _set_ingredients_and_tags(validated_data, recipe):
@@ -226,9 +230,7 @@ class FavouriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = (
-            'id',
-        )
+        fields = ('id',)
 
     def validate(self, data):
         user = self.context['request'].user
