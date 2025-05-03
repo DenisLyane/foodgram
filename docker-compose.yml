@@ -1,7 +1,3 @@
-volumes:
-  pg_data:
-  static:
-  media:
 services:
   db:
     image: postgres:13.10
@@ -29,3 +25,8 @@ services:
     volumes:
       - static:/static
       - media:/media
+
+volumes:
+  pg_data:
+  static:
+  media:
