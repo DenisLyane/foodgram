@@ -15,7 +15,7 @@ User = get_user_model()
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'slug']
+        fields = ('id', 'name', 'slug')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -254,3 +254,35 @@ class FavouriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Рецепт уже был удален из избранного.')
         favourite.delete()
+
+
+class ShoppingCartSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Recipe
+        fields = ('id',)
+
+    def validate(self, data):
+        user = self.context['request'].user
+        pk = self.context['id']
+        recipe = get_object_or_404(Recipe, id=pk)
+        if recipe.shopping_carts.filter(user=user).exists():
+            raise serializers.ValidationError(
+                'Рецепт уже был добавлен в корзину.')
+        return data
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        pk = self.context['id']
+        recipe = get_object_or_404(Recipe, id=pk)
+        shopping_cart_item = user.shopping_carts.create(recipe=recipe)
+        return shopping_cart_item.recipe
+
+    def delete(self, user):
+        pk = self.context['id']
+        recipe = get_object_or_404(Recipe, id=pk)
+        shopping_cart_item = user.shopping_carts.filter(recipe=recipe).first()
+        if not shopping_cart_item:
+            raise serializers.ValidationError(
+                'Рецепт уже был удален из корзины.')
+        shopping_cart_item.delete()

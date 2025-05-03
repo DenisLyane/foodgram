@@ -12,10 +12,10 @@ from api.filters import IngredientFilter, RecipeFilter
 from api.pagination import CustomPagination
 from api.permissions import AuthorOrReadOnly
 from api.serializers import (FavouriteAndShoppingCrtSerializer,
-                             IngredientSerializer, RecipeReadSerializer,
-                             RecipeSerializer, TagSerializer)
-from recipes.models import (Ingredient, Recipe, RecipeIngredient,
-                            Tag)
+                             FavouriteSerializer, IngredientSerializer,
+                             RecipeReadSerializer, RecipeSerializer,
+                             ShoppingCartSerializer, TagSerializer)
+from recipes.models import (Ingredient, Recipe, RecipeIngredient, Tag)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
