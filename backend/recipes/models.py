@@ -139,12 +139,12 @@ class Recipe(models.Model):
         super().save(*args, **kwargs)
         if not self.short_link:
             self.short_link = (
-                f'https://foodgramlyane.zapto.org/r/{self.pk}/'
+                f'https://foodgramdlyane.zapto.org/r/{self.pk}/'
             )
             self.save(update_fields=['short_link'])
         if not self.full_link:
             self.full_link = (
-                f'https://foodgramlyane.zapto.org/recipes/{self.pk}/'
+                f'https://foodgramdlyane.zapto.org/recipes/{self.pk}/'
             )
             self.save(update_fields=['full_link'])
 
