@@ -14,23 +14,25 @@ services:
     depends_on:
       - db
     volumes:
-      - static:/backend_static
-      - media:/app/media
+      - static_volume:/app/static/
+      - media_volume:/app/media/
   frontend:
     image: denisoid/foodgram_frontend
-    command: cp -r /app/build/. /static/
     volumes:
-      - static:/static
+      - ../frontend/:/app/result_build/
     depends_on:
       - backend
-  gateway:
-    image: denisoid/foodgram_gateway
+  nginx:
+    container_name: proxy
     env_file: .env
     depends_on:
       - backend
-      - frontend 
+    image: nginx:1.25.4-alpine
     ports:
-      - 9000:80
+      - "9000:80"
     volumes:
-      - static:/static
-      - media:/media
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ../frontend/build/:/usr/share/nginx/html/
+      - ../docs/:/usr/share/nginx/html/api/docs/
+      - static_volume:/app/static/
+      - media_volume:/app/media/
