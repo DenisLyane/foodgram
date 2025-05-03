@@ -18,12 +18,6 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'slug')
 
 
-class IngredientSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Ingredient
-        fields = '__all__'
-
-
 class RecipeTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecipeTag
@@ -31,12 +25,33 @@ class RecipeTagSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(max_value=MAX, min_value=MIN)
-    amount = serializers.IntegerField(max_value=MAX, min_value=MIN)
+    """Сериализация ингредиентов в рецептах."""
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
+    )
+    amount = serializers.IntegerField(
+        error_messages={
+            'min_value': 'Количество не может быть меньше 1.'
+        })
 
     class Meta:
         model = RecipeIngredient
-        fields = ('id', 'amount')
+        fields = (
+            'id',
+            'name',
+            'measurement_unit',
+            'amount',
+        )
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+    amount = RecipeIngredientSerializer(read_only=True)
+
+    class Meta:
+        model = Ingredient
+        fields = '__all__'
 
 
 class FavouriteAndShoppingCrtSerializer(serializers.ModelSerializer):
@@ -100,10 +115,7 @@ class CreateIngredientInRecipeSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = RecipeIngredient
-        fields = (
-            'id',
-            'amount',
-        )
+        fields = ('id','amount',)
 
 
 class RecipeSerializer(serializers.ModelSerializer):
