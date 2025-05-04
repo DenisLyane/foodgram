@@ -1,5 +1,6 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import UniqueConstraint
 
 from recipes.constants import (INGR_NAME_LENGTH, INGR_UNIT_LENGTH, MAX, MIN,
                                RECIPE_NAME_LENGTH, TAG_LENGTH)
@@ -35,9 +36,15 @@ class Ingredient(models.Model):
     )
 
     class Meta:
-        ordering = ('name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        ordering = ('name',)
+        constraints = [
+            UniqueConstraint(
+                fields=['name', 'measurement_unit'],
+                name='unique_name_measurement'
+            )
+        ]
 
     def __str__(self):
         return f'{self.name}, {self.measurement_unit}.'
@@ -112,7 +119,8 @@ class Recipe(models.Model):
     )
     text = models.TextField('Описание рецепта')
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE,
+        User,
+        on_delete=models.CASCADE,
         verbose_name='Автор',
     )
     ingredients = models.ManyToManyField(
@@ -136,22 +144,23 @@ class Recipe(models.Model):
             MaxValueValidator(MAX)
         ]
     )
-    short_link = models.URLField(
-        max_length=6, unique=True, blank=True, null=True)
+    short_link = models.URLField(unique=True, blank=True, null=True)
     full_link = models.URLField(blank=True, null=True)
 
     class Meta:
-        ordering = ('-id',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+        ordering = ('-id',)
 
     def save(self, *args, **kwargs):
         if not self.short_link:
             self.short_link = f'https://foodgramdlyane.zapto.org/r/{self.pk}/'
+            self.save(update_fields=['short_link'])
         if not self.full_link:
             self.full_link = (
                 f'https://foodgramdlyane.zapto.org/recipes/{self.pk}/'
             )
+            self.save(update_fields=['full_link'])
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -171,9 +180,15 @@ class Favourite(models.Model):
     )
 
     class Meta:
-        ordering = ('-id',)
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
+        ordering = ('-id',)
+        constraints = [
+            UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_fav_user_recipe'
+            )
+        ]
 
     def __str__(self):
         return f'{self.user.username} добавил "{self.recipe.name}" в избранное'
@@ -192,9 +207,15 @@ class ShoppingCart(models.Model):
     )
 
     class Meta:
-        ordering = ('-id',)
         verbose_name = 'Корзина покупок'
         verbose_name_plural = 'Корзина покупок'
+        ordering = ('-id',)
+        constraints = [
+            UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_shop_user_recipe'
+            )
+        ]
 
     def __str__(self):
         return f'{self.user.username} добавил "{self.recipe.name}" в корзину'
