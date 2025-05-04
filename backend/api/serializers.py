@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from api.fields import Base64ImageField
+from recipes.constants import MAX, MIN
 from recipes.models import Ingredient, Recipe, RecipeIngredient, RecipeTag, Tag
 from users.models import Subscription
 from users.serializers import UserSerializer
@@ -56,17 +57,14 @@ class CreateIngredientInRecipeSerializer(serializers.ModelSerializer):
         queryset=Ingredient.objects.all(),
         source='ingredient',
         error_messages={
-            'does_not_exist': 'Ингредиент с указанным ID не существует.'
+            'does_not_exist': 'Ингредиент не существует.'
         }
     )
 
     class Meta:
 
         model = RecipeIngredient
-        fields = (
-            'id',
-            'amount',
-        )
+        fields = ('id', 'amount',)
 
 
 class FavouriteAndShoppingCrtSerializer(serializers.ModelSerializer):
@@ -98,7 +96,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'image', 'text', 'author',
             'ingredients', 'tags', 'cooking_time',
-            'is_in_shopping_cart', 'is_favorited'
+            'is_in_shopping_cart', 'is_favorited',
         )
 
     def get_user(self):
@@ -125,6 +123,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         many=True, queryset=Tag.objects.all(), required=True)
     image = Base64ImageField(required=True, allow_null=True)
     author = UserSerializer(required=False)
+    cooking_time = serializers.IntegerField(max_value=MAX, min_value=MIN)
 
     class Meta:
         model = Recipe
@@ -214,24 +213,17 @@ class SubscribingSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
     def get_is_subscribed(self, obj):
-        return Subscription.objects.filter(
-            user=self.context['request'].user,
-            subscribing=obj).exists()
-
-    def get_recipes(self, obj):
         request = self.context.get('request')
-        queryset = obj.recipes.all()
-        limit = request.query_params.get('recipes_limit')
-        if limit:
-            try:
-                queryset = queryset[:int(limit)]
-            except (TypeError, ValueError):
-                pass
-        return FavouriteAndShoppingCrtSerializer(
-            queryset,
-            many=True,
-            context={'request': request},
-        ).data
+        if request is None or request.user.is_anonymous:
+            return False
+        return object.author.filter(subscriber=request.user).exists()
+
+    def get_recipes(self, object):
+        recipes = object.recipes.all()[:3]
+        return FavouriteAndShoppingCrtSerializer(recipes, many=True).data
+
+    def get_recipes_count(self, object):
+        return object.recipes.count()
 
 
 class SubscribeSerializer(serializers.ModelSerializer):
