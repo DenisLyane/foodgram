@@ -4,7 +4,6 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from api.fields import Base64ImageField
-from recipes.constants import MAX, MIN
 from recipes.models import Ingredient, Recipe, RecipeIngredient, RecipeTag, Tag
 from users.models import Subscription
 from users.serializers import UserSerializer
@@ -117,6 +116,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         if user and not user.is_anonymous:
             return obj.shopping_carts.filter(user=user).exists()
         return False
+
 
 class RecipeSerializer(serializers.ModelSerializer):
     ingredients = CreateIngredientInRecipeSerializer(
