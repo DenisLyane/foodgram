@@ -15,7 +15,7 @@ User = get_user_model()
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'slug']
+        fields = ('id', 'name', 'slug',)
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -36,7 +36,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeIngredient
-        fields = ['id', 'amount']
+        fields = ('id', 'amount',)
 
 
 class FavouriteAndShoppingCrtSerializer(serializers.ModelSerializer):
@@ -48,7 +48,7 @@ class FavouriteAndShoppingCrtSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'image',
-            'cooking_time'
+            'cooking_time',
         )
 
 
@@ -64,7 +64,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'image', 'text', 'author',
             'ingredients', 'tags', 'cooking_time',
-            'is_in_shopping_cart', 'is_favorited'
+            'is_in_shopping_cart', 'is_favorited',
         ]
 
     def get_user(self):
@@ -177,7 +177,7 @@ class SubscribingSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'email', 'username', 'first_name', 'last_name',
-                  'avatar', 'is_subscribed', 'recipes', 'recipes_count')
+                  'avatar', 'is_subscribed', 'recipes', 'recipes_count',)
         read_only_fields = ('id',)
 
     def get_is_subscribed(self, object):
