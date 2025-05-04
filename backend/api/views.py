@@ -1,12 +1,10 @@
 from django.db.models import Sum
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from api.filters import IngredientFilter, RecipeFilter
 from api.pagination import CustomPagination
@@ -142,10 +140,3 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'Content-Disposition'] = 'attachment; filename="shopping_cart.txt"'
 
         return response
-
-
-class RecipeRedirectView(APIView):
-    def get(self, request, pk, *args, **kwargs):
-        recipe = get_object_or_404(Recipe, pk=pk)
-        full_link = recipe.full_link
-        return redirect(full_link)
