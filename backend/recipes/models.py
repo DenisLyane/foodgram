@@ -1,6 +1,5 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import UniqueConstraint
 
 from recipes.constants import (INGR_NAME_LENGTH, INGR_UNIT_LENGTH, MAX, MIN,
                                RECIPE_NAME_LENGTH, TAG_LENGTH)
@@ -39,12 +38,6 @@ class Ingredient(models.Model):
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
         ordering = ('name',)
-        constraints = [
-            UniqueConstraint(
-                fields=['name', 'measurement_unit'],
-                name='unique_name_measurement'
-            )
-        ]
 
     def __str__(self):
         return f'{self.name}, {self.measurement_unit}.'
@@ -179,12 +172,6 @@ class Favourite(models.Model):
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
         ordering = ('-id',)
-        constraints = [
-            UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='unique_fav_user_recipe'
-            )
-        ]
 
     def __str__(self):
         return f'{self.user.username} добавил "{self.recipe.name}" в избранное'
@@ -206,12 +193,6 @@ class ShoppingCart(models.Model):
         verbose_name = 'Корзина покупок'
         verbose_name_plural = 'Корзина покупок'
         ordering = ('-id',)
-        constraints = [
-            UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='unique_shop_user_recipe'
-            )
-        ]
 
     def __str__(self):
         return f'{self.user.username} добавил "{self.recipe.name}" в корзину'
