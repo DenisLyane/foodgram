@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
                   'last_name', 'avatar', 'is_subscribed',)
         read_only_fields = ('id',)
 
-    def get_is_subscribed(self, obj): 
+    def get_is_subscribed(self, obj):
         return Subscription.objects.filter(user=obj).exists()
 
 
