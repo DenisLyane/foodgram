@@ -1,4 +1,5 @@
 import random
+import string
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -163,7 +164,6 @@ class Recipe(models.Model):
                 self.short_link = short_link
                 break
         return short_link
-    
 
 
 class Favourite(models.Model):
