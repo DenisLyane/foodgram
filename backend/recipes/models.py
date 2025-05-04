@@ -153,6 +153,7 @@ class Recipe(models.Model):
         ordering = ('-id',)
 
     def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
         if not self.short_link:
             self.short_link = f'https://foodgramdlyane.zapto.org/r/{self.pk}/'
             self.save(update_fields=['short_link'])
@@ -161,7 +162,6 @@ class Recipe(models.Model):
                 f'https://foodgramdlyane.zapto.org/recipes/{self.pk}/'
             )
             self.save(update_fields=['full_link'])
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
