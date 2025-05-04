@@ -1,20 +1,9 @@
-import base64
+import re
 
-from django.core.files.base import ContentFile
 from rest_framework import serializers
 
-from users.models import Subscription, User
-
-
-class Base64ImageFieldAvatar(serializers.ImageField):
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-
-            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-
-        return super().to_internal_value(data)
+from api.fields import Base64ImageField
+from users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -26,12 +15,22 @@ class UserSerializer(serializers.ModelSerializer):
                   'last_name', 'avatar', 'is_subscribed')
         read_only_fields = ('id',)
 
+    def validate_username(username):
+        if re.search(r'[^\w.@+-]', username):
+            raise serializers.ValidationError(
+                'В имени содержатся недопустимые символы.'
+            )
+        return username
+
     def get_is_subscribed(self, obj):
-        return Subscription.objects.filter(user=obj).exists()
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.subscribing.filter(user=request.user).exists()
+        return False
 
 
 class UserAvatarSerializer(serializers.ModelSerializer):
-    avatar = Base64ImageFieldAvatar(required=True)
+    avatar = Base64ImageField(required=True)
 
     class Meta:
         model = User
