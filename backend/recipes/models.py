@@ -146,11 +146,11 @@ class Recipe(models.Model):
         verbose_name_plural = 'Рецепты'
 
     def save(self, *args, **kwargs):
-    if not self.short_link:
-        self.short_link = f'https://foodgramdlyane.zapto.org/r/{self.pk}/'
-    if not self.full_link:
-        self.full_link = f'https://foodgramdlyane.zapto.org/recipes/{self.pk}/'
-    super().save(*args, **kwargs)
+        if not self.short_link:
+            self.short_link = f'https://foodgramdlyane.zapto.org/r/{self.pk}/'
+        if not self.full_link:
+            self.full_link = f'https://foodgramdlyane.zapto.org/recipes/{self.pk}/'
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
