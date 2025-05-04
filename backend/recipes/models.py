@@ -1,6 +1,3 @@
-import random
-import string
-
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -148,22 +145,17 @@ class Recipe(models.Model):
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
-    def __str__(self):
-        return self.name
-
     def save(self, *args, **kwargs):
         if not self.short_link:
-            self.create_short_link()
+            self.short_link = f'https://foodgramdlyane.zapto.org/r/{self.pk}/'
+        if not self.full_link:
+            self.full_link = (
+                f'https://foodgramdlyane.zapto.org/recipes/{self.pk}/'
+            )
         super().save(*args, **kwargs)
 
-    def create_short_link(self):
-        while not self.short_link:
-            short_link = ''.join(random.choices(
-                string.ascii_letters + string.digits, k=6))
-            if not Recipe.objects.filter(short_link=short_link).exists():
-                self.short_link = short_link
-                break
-        return short_link
+    def __str__(self):
+        return self.name
 
 
 class Favourite(models.Model):
