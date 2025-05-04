@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models import CheckConstraint, F, Q, UniqueConstraint
+from django.db.models import UniqueConstraint
 
 from users.constants import EMEIL_LENGTH, NAME_LENGTH
 
@@ -52,24 +52,18 @@ class User(AbstractUser):
 
 
 class Subscription(models.Model):
-
-    subscribing = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='subscribing')
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='subscriber')
+    subscribing = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='subscribing')
 
     class Meta:
-        constraints = [
-            UniqueConstraint(
-                fields=['user', 'subscribing'], name='unique_together'
-            ),
-            CheckConstraint(
-                check=~Q(user=F('subscribing')),
-                name='chek_self_subscription'
-            )
-        ]
         verbose_name = 'Подписки'
         verbose_name_plural = 'Подписки'
+        constraints = [
+            UniqueConstraint(
+                fields=['user', 'subscribing'], name='unique_together')
+        ]
 
     def __str__(self):
         return f'{self.user} подписан на {self.subscribing}'
