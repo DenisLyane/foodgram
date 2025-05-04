@@ -149,7 +149,9 @@ class Recipe(models.Model):
         if not self.short_link:
             self.short_link = f'https://foodgramdlyane.zapto.org/r/{self.pk}/'
         if not self.full_link:
-            self.full_link = f'https://foodgramdlyane.zapto.org/recipes/{self.pk}/'
+            self.full_link = (
+                f'https://foodgramdlyane.zapto.org/recipes/{self.pk}/'
+            )
         super().save(*args, **kwargs)
 
     def __str__(self):
